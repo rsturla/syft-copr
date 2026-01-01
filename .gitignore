@@ -1,0 +1,4 @@
+/syft-*.tar.gz
+/syft-*-vendor.tar.bz2
+
+/results/
