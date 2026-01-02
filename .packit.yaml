@@ -57,15 +57,17 @@ jobs:
 
 actions:
   # For COPR builds: create vendor archive from upstream source
-  # Packit downloads Source0 via 'sources' config, we just need the vendor archive
   post-upstream-clone:
     # https://fedora.gitlab.io/sigs/go/go-vendor-tools/scenarios/#manual-update
     - |
       sh -xeuc "
         export GOTOOLCHAIN=auto
 
+        # Download source tarball from upstream GitHub
+        # (spectool expands %gosource macro to the correct URL)
+        spectool -g syft.spec
+
         # Create vendor archive using go-vendor-tools
-        # Source0 is downloaded by Packit via 'sources' config above
         go_vendor_archive create --config go-vendor-tools.toml syft.spec
 
         # Verify license (or update if needed)
