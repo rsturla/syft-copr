@@ -10,7 +10,7 @@
 %global goipath         github.com/anchore/syft
 Version:                1.39.0
 
-%gometa -L -f
+%gometa -f
 
 
 Name:           syft
@@ -52,7 +52,7 @@ export GO_LDFLAGS="-X %{goipath}/internal/version.version=%{version} \
                    -X %{goipath}/internal/version.gitCommit=fedora \
                    -X %{goipath}/internal/version.gitDescription=v%{version}"
 
-%gobuild -o %{gobuilddir}/bin/%{name} %{goipath}/cmd/%{name}
+%gobuild -o %{gobuilddir}/bin/%{name} ./cmd/%{name}
 
 # Generate shell completions
 %{gobuilddir}/bin/%{name} completion bash > %{name}.bash
