@@ -47,12 +47,13 @@ Key features:
 %go_vendor_license_buildrequires -c %{S:2}
 
 %build
-%global gomodulesmode GO111MODULE=on
-export GO_LDFLAGS="-X %{goipath}/internal/version.version=%{version} \
-                   -X %{goipath}/internal/version.gitCommit=fedora \
-                   -X %{goipath}/internal/version.gitDescription=v%{version}"
+export GO111MODULE=on
+export GOFLAGS="-mod=vendor"
+export LDFLAGS="-X %{goipath}/internal/version.version=%{version} \
+                -X %{goipath}/internal/version.gitCommit=fedora \
+                -X %{goipath}/internal/version.gitDescription=v%{version}"
 
-%gobuild -o %{gobuilddir}/bin/%{name} %{goipath}/cmd/%{name}
+go build -o %{gobuilddir}/bin/%{name} -ldflags "${LDFLAGS}" ./cmd/%{name}
 
 # Generate shell completions
 %{gobuilddir}/bin/%{name} completion bash > %{name}.bash
