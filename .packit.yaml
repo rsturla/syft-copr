@@ -6,27 +6,35 @@ downstream_package_name: syft
 
 upstream_tag_template: v{version}
 
+# Dependencies needed to create the SRPM (vendor archive)
+srpm_build_deps:
+  - go-vendor-tools
+  - golang
+  - rpmdevtools
+
 jobs:
 # PHASE 1: COPR builds for testing
 # Build in COPR on pull requests
 - job: copr_build
   trigger: pull_request
   owner: rsturla
-  project: syft
+  project: packages
   targets:
     - fedora-rawhide-x86_64
-    - fedora-42-x86_64
-    - fedora-41-x86_64
+    - fedora-rawhide-aarch64
 
 # Build in COPR when new upstream release is tagged
 - job: copr_build
   trigger: release
   owner: rsturla
-  project: syft
+  project: packages
   targets:
     - fedora-rawhide-x86_64
+    - fedora-rawhide-aarch64
+    - fedora-43-x86_64
+    - fedora-43-aarch64
     - fedora-42-x86_64
-    - fedora-41-x86_64
+    - fedora-42-aarch64
 
 # PHASE 2: Official Fedora (enable when ready to submit)
 # Creates PRs to Fedora dist-git when upstream releases
@@ -42,18 +50,26 @@ jobs:
 #     - rawhide
 
 actions:
-  # Create vendor archive when building SRPM
+  # For COPR builds: create vendor archive from upstream source
   post-upstream-clone:
-    - |
-      sh -xeuc "
-        export GOTOOLCHAIN=auto
-        spectool -g syft.spec
-        go_vendor_archive create --config go-vendor-tools.toml syft.spec
-        go_vendor_license \
-          --config go-vendor-tools.toml \
-          --path syft.spec \
-          report \
-          --update-spec || true
-      "
+    # https://fedora.gitlab.io/sigs/go/go-vendor-tools/scenarios/#manual-update
+    # Use spectool to download source (it parses version from spec file)
+    - bash -c 'spectool -g syft.spec && ls -lh *.tar.gz'
+    - bash -c 'export GOTOOLCHAIN=auto && go_vendor_archive create --config go-vendor-tools.toml syft.spec'
+    - bash -c 'go_vendor_license --config go-vendor-tools.toml --path syft.spec report --verify-spec || true'
+
+  # For Fedora dist-git (Phase 2): runs after syncing to dist-git
+  # post-modifications:
+  #   - |
+  #     sh -xeuc "
+  #       cd $PACKIT_DOWNSTREAM_REPO
+  #       export GOTOOLCHAIN=auto
+  #       go_vendor_archive create --config go-vendor-tools.toml syft.spec
+  #       go_vendor_license \
+  #         --config go-vendor-tools.toml \
+  #         --path syft.spec \
+  #         report \
+  #         --verify-spec
+  #     "
 
 create_sync_note: false
