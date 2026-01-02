@@ -6,30 +6,54 @@ downstream_package_name: syft
 
 upstream_tag_template: v{version}
 
+# COPR settings (temporary, until promoted to Fedora)
+copr_owner: "rsturla"
+copr_project: syft
+
 jobs:
+# PHASE 1: COPR builds for testing
+# Build in COPR on pull requests
+- job: copr_build
+  trigger: pull_request
+  targets:
+    - fedora-rawhide-x86_64
+    - fedora-42-x86_64
+    - fedora-41-x86_64
 
-- job: pull_from_upstream
+# Build in COPR when new upstream release is tagged
+- job: copr_build
   trigger: release
-  dist_git_branches:
-    - rawhide
+  targets:
+    - fedora-rawhide-x86_64
+    - fedora-42-x86_64
+    - fedora-41-x86_64
 
-- job: koji_build
-  trigger: commit
-  dist_git_branches:
-    - rawhide
+# PHASE 2: Official Fedora (enable when ready to submit)
+# Creates PRs to Fedora dist-git when upstream releases
+# - job: pull_from_upstream
+#   trigger: release
+#   dist_git_branches:
+#     - rawhide
+
+# Builds in Koji after dist-git PR is merged
+# - job: koji_build
+#   trigger: commit
+#   dist_git_branches:
+#     - rawhide
 
 actions:
-  post-modifications:
-    # https://fedora.gitlab.io/sigs/go/go-vendor-tools/scenarios/#manual-update
+  # Used by pull_from_upstream to prepare sources for dist-git
+  post-upstream-clone:
     - |
       sh -xeuc "
-        cd $PACKIT_DOWNSTREAM_REPO
         export GOTOOLCHAIN=auto
+        spectool -g syft.spec
         go_vendor_archive create --config go-vendor-tools.toml syft.spec
         go_vendor_license \
           --config go-vendor-tools.toml \
           --path syft.spec \
           report \
-          --update-spec
+          --update-spec || true
       "
+
 create_sync_note: false
