@@ -6,12 +6,6 @@ downstream_package_name: syft
 
 upstream_tag_template: v{version}
 
-# Source0 must be downloaded from upstream GitHub
-# Packit won't auto-create tarball from this packaging-only repo
-sources:
-  - path: syft-{version}.tar.gz
-    url: https://github.com/anchore/syft/archive/v{version}/syft-{version}.tar.gz
-
 # Dependencies needed to create the SRPM (vendor archive)
 srpm_build_deps:
   - go-vendor-tools
@@ -59,24 +53,9 @@ actions:
   # For COPR builds: create vendor archive from upstream source
   post-upstream-clone:
     # https://fedora.gitlab.io/sigs/go/go-vendor-tools/scenarios/#manual-update
-    - |
-      sh -xeuc "
-        export GOTOOLCHAIN=auto
-
-        # Download source tarball from upstream GitHub
-        # (spectool expands %gosource macro to the correct URL)
-        spectool -g syft.spec
-
-        # Create vendor archive using go-vendor-tools
-        go_vendor_archive create --config go-vendor-tools.toml syft.spec
-
-        # Verify license (or update if needed)
-        go_vendor_license \
-          --config go-vendor-tools.toml \
-          --path syft.spec \
-          report \
-          --verify-spec || true
-      "
+    - bash -c 'wget https://github.com/anchore/syft/archive/v${PACKIT_PROJECT_VERSION}/syft-${PACKIT_PROJECT_VERSION}.tar.gz'
+    - bash -c 'export GOTOOLCHAIN=auto && go_vendor_archive create --config go-vendor-tools.toml syft.spec'
+    - bash -c 'go_vendor_license --config go-vendor-tools.toml --path syft.spec report --verify-spec || true'
 
   # For Fedora dist-git (Phase 2): runs after syncing to dist-git
   # post-modifications:
