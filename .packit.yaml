@@ -6,6 +6,12 @@ downstream_package_name: syft
 
 upstream_tag_template: v{version}
 
+# Dependencies needed to create the SRPM (vendor archive)
+srpm_build_deps:
+  - go-vendor-tools
+  - golang
+  - rpmdevtools
+
 jobs:
 # PHASE 1: COPR builds for testing
 # Build in COPR on pull requests
