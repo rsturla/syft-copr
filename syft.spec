@@ -28,10 +28,6 @@ Source2:        go-vendor-tools.toml
 BuildRequires:  git-core
 BuildRequires:  go-vendor-tools
 
-Recommends:     bash-completion
-Recommends:     zsh
-Recommends:     fish
-
 %description
 Syft is a CLI tool and Go library for generating a Software Bill of Materials
 (SBOM) from container images and filesystems. It supports multiple output

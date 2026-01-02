@@ -8,7 +8,7 @@ upstream_tag_template: v{version}
 
 # COPR settings (temporary, until promoted to Fedora)
 copr_owner: "rsturla"
-copr_project: syft
+copr_project: packages
 
 jobs:
 # PHASE 1: COPR builds for testing
