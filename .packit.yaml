@@ -6,15 +6,13 @@ downstream_package_name: syft
 
 upstream_tag_template: v{version}
 
-# COPR settings (temporary, until promoted to Fedora)
-copr_owner: "rsturla"
-copr_project: packages
-
 jobs:
 # PHASE 1: COPR builds for testing
 # Build in COPR on pull requests
 - job: copr_build
   trigger: pull_request
+  owner: rsturla
+  project: syft
   targets:
     - fedora-rawhide-x86_64
     - fedora-42-x86_64
@@ -23,6 +21,8 @@ jobs:
 # Build in COPR when new upstream release is tagged
 - job: copr_build
   trigger: release
+  owner: rsturla
+  project: syft
   targets:
     - fedora-rawhide-x86_64
     - fedora-42-x86_64
@@ -42,7 +42,7 @@ jobs:
 #     - rawhide
 
 actions:
-  # Used by pull_from_upstream to prepare sources for dist-git
+  # Create vendor archive when building SRPM
   post-upstream-clone:
     - |
       sh -xeuc "
