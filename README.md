@@ -1,6 +1,6 @@
 # Syft RPM Package
 
-This package follows the same approach as the [Fedora gh package](https://src.fedoraproject.org/rpms/gh).
+RPM packaging for Syft.
 
 ## Prerequisites
 
