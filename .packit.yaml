@@ -53,7 +53,8 @@ actions:
   # For COPR builds: create vendor archive from upstream source
   post-upstream-clone:
     # https://fedora.gitlab.io/sigs/go/go-vendor-tools/scenarios/#manual-update
-    - bash -c 'set -x; echo "VERSION=$PACKIT_PROJECT_VERSION"; curl -fsSL -o syft-${PACKIT_PROJECT_VERSION}.tar.gz https://github.com/anchore/syft/archive/refs/tags/v${PACKIT_PROJECT_VERSION}.tar.gz && ls -lh syft-*.tar.gz'
+    # Use spectool to download source (it parses version from spec file)
+    - bash -c 'spectool -g syft.spec && ls -lh *.tar.gz'
     - bash -c 'export GOTOOLCHAIN=auto && go_vendor_archive create --config go-vendor-tools.toml syft.spec'
     - bash -c 'go_vendor_license --config go-vendor-tools.toml --path syft.spec report --verify-spec || true'
 
