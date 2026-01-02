@@ -15,8 +15,7 @@ jobs:
   project: packages
   targets:
     - fedora-rawhide-x86_64
-    - fedora-42-x86_64
-    - fedora-41-x86_64
+    - fedora-rawhide-aarch64
 
 # Build in COPR when new upstream release is tagged
 - job: copr_build
@@ -25,8 +24,11 @@ jobs:
   project: packages
   targets:
     - fedora-rawhide-x86_64
+    - fedora-rawhide-aarch64
+    - fedora-43-x86_64
+    - fedora-43-aarch64
     - fedora-42-x86_64
-    - fedora-41-x86_64
+    - fedora-42-aarch64
 
 # PHASE 2: Official Fedora (enable when ready to submit)
 # Creates PRs to Fedora dist-git when upstream releases
