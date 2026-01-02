@@ -50,18 +50,38 @@ jobs:
 #     - rawhide
 
 actions:
-  # Create vendor archive when building SRPM
+  # For COPR builds: create vendor archive from cloned upstream source
+  # Packit creates Source0 tarball from the clone, we just need the vendor archive
   post-upstream-clone:
+    # https://fedora.gitlab.io/sigs/go/go-vendor-tools/scenarios/#manual-update
     - |
       sh -xeuc "
         export GOTOOLCHAIN=auto
+
+        # Download source and create vendor archive using go-vendor-tools
         spectool -g syft.spec
         go_vendor_archive create --config go-vendor-tools.toml syft.spec
+
+        # Verify license (or update if needed)
         go_vendor_license \
           --config go-vendor-tools.toml \
           --path syft.spec \
           report \
-          --update-spec || true
+          --verify-spec || true
       "
+
+  # For Fedora dist-git (Phase 2): runs after syncing to dist-git
+  # post-modifications:
+  #   - |
+  #     sh -xeuc "
+  #       cd $PACKIT_DOWNSTREAM_REPO
+  #       export GOTOOLCHAIN=auto
+  #       go_vendor_archive create --config go-vendor-tools.toml syft.spec
+  #       go_vendor_license \
+  #         --config go-vendor-tools.toml \
+  #         --path syft.spec \
+  #         report \
+  #         --verify-spec
+  #     "
 
 create_sync_note: false
