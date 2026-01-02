@@ -12,7 +12,7 @@ jobs:
 - job: copr_build
   trigger: pull_request
   owner: rsturla
-  project: syft
+  project: packages
   targets:
     - fedora-rawhide-x86_64
     - fedora-42-x86_64
@@ -22,7 +22,7 @@ jobs:
 - job: copr_build
   trigger: release
   owner: rsturla
-  project: syft
+  project: packages
   targets:
     - fedora-rawhide-x86_64
     - fedora-42-x86_64
