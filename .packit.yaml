@@ -6,6 +6,12 @@ downstream_package_name: syft
 
 upstream_tag_template: v{version}
 
+# Source0 must be downloaded from upstream GitHub
+# Packit won't auto-create tarball from this packaging-only repo
+sources:
+  - path: syft-{version}.tar.gz
+    url: https://github.com/anchore/syft/archive/v{version}/syft-{version}.tar.gz
+
 # Dependencies needed to create the SRPM (vendor archive)
 srpm_build_deps:
   - go-vendor-tools
@@ -50,16 +56,16 @@ jobs:
 #     - rawhide
 
 actions:
-  # For COPR builds: create vendor archive from cloned upstream source
-  # Packit creates Source0 tarball from the clone, we just need the vendor archive
+  # For COPR builds: create vendor archive from upstream source
+  # Packit downloads Source0 via 'sources' config, we just need the vendor archive
   post-upstream-clone:
     # https://fedora.gitlab.io/sigs/go/go-vendor-tools/scenarios/#manual-update
     - |
       sh -xeuc "
         export GOTOOLCHAIN=auto
 
-        # Download source and create vendor archive using go-vendor-tools
-        spectool -g syft.spec
+        # Create vendor archive using go-vendor-tools
+        # Source0 is downloaded by Packit via 'sources' config above
         go_vendor_archive create --config go-vendor-tools.toml syft.spec
 
         # Verify license (or update if needed)
